@@ -1,0 +1,5 @@
+pwd: gpg-passphrase
+bucket: s3-bucket
+key: s3-file
+aws-profile: profile_name_aws_profile
+
