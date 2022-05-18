@@ -41,6 +41,10 @@ Add cclip to your path if desired.
 ```
 cclip put "my clipboard data"
 ```
+#### Copy Text from System Clipboard to Cloud Clipboard
+```
+cclip grab
+```
 #### Retrieve Text from Cloud Clipboard
 ```
 cclip get
