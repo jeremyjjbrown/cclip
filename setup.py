@@ -12,8 +12,9 @@ setup(
     include_package_data=True,
     install_requires=[
         'PyYAML==5.3.1',
-        'click>=8.0.3',
         'boto3>=1.21.44',
+        'click>=8.0.3',
+        'pyperclip>=1.8.2',
         'python-gnupg>=0.4.8'
     ],
     py_modules=['cclip'],

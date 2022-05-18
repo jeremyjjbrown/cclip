@@ -8,8 +8,10 @@ import click
 import gnupg
 import logging
 import os
-import yaml
+import pyperclip
 import time
+import yaml
+
 
 from botocore.exceptions import ClientError
 
@@ -30,6 +32,30 @@ def cli():
 @cli.command()
 @click.argument('content')
 def put(content):
+    _put(content)
+
+
+@cli.command()
+def grab():
+    _put(pyperclip.paste())
+
+
+@cli.command()
+def get():
+    try:
+        resp = s3.get_object(Bucket=config['bucket'], Key=config['key'])
+        s3_data = resp['Body'].read()
+        decrypted_data = gpg.decrypt(s3_data, passphrase=config['pwd'])
+        data = yaml.safe_load(decrypted_data.data)
+    except ClientError as ex:
+        if ex.response['Error']['Code'] == 'NoSuchKey':
+            logging.info('No cclip object found.')
+        return
+    for k in reversed(list(data.keys())):
+        click.echo(data[k])
+
+
+def _put(content):
     try:
         resp = s3.get_object(Bucket=config['bucket'], Key=config['key'])
         s3_data = resp['Body'].read()
@@ -54,21 +80,6 @@ def put(content):
         Key=config['key'],
         Body=encrypted_data.data
     )
-
-
-@cli.command()
-def get():
-    try:
-        resp = s3.get_object(Bucket=config['bucket'], Key=config['key'])
-        s3_data = resp['Body'].read()
-        decrypted_data = gpg.decrypt(s3_data, passphrase=config['pwd'])
-        data = yaml.safe_load(decrypted_data.data)
-    except ClientError as ex:
-        if ex.response['Error']['Code'] == 'NoSuchKey':
-            logging.info('No cclip object found.')
-        return
-    for k in reversed(list(data.keys())):
-        click.echo(data[k])
 
 
 if __name__ == '__main__':
